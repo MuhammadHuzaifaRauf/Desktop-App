@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import MainLayout from "../layout/MainLayout";
 import { ComponentToPrint } from "../components/ComponentToPrint";
-import { useReactToPrint } from "react-to-print";
-import { toast } from "react-toastify";
 
+import usePOS from "../hooks/usePOS";
 const products = [
   {
     id: 1,
@@ -90,75 +89,16 @@ const products = [
       "https://www.colgate.com/content/dam/cp-sites/oral-care/oral-care-center/en-my/product-detail-pages/toothpaste/colgate-mcp-fresh-cool-thumb.jpg",
   },
 ];
-
 function POSPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [cart, setCart] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
-
-  const toastOptions = {
-    autoClose: 2000,
-    pauseOnHover: true,
-  };
-
-  const addProductToCart = async (product) => {
-    let findProductInCart = await cart.find((i) => {
-      return i.id === product.id;
-    });
-
-    if (findProductInCart) {
-      let newCart = [];
-      let newItem;
-
-      cart.forEach((cartItem) => {
-        if (cartItem.id === product.id) {
-          newItem = {
-            ...cartItem,
-            quantity: cartItem.quantity + 1,
-            totalAmount: cartItem.price * (cartItem.quantity + 1),
-          };
-          newCart.push(newItem);
-        } else {
-          newCart.push(cartItem);
-        }
-      });
-
-      setCart(newCart);
-      toast(`Added ${newItem.name} to cart`, toastOptions);
-    } else {
-      let addingProduct = {
-        ...product,
-        quantity: 1,
-        totalAmount: product.price,
-      };
-      setCart([...cart, addingProduct]);
-      toast(`Added ${product.name} to cart`, toastOptions);
-    }
-  };
-
-  const removeProduct = async (product) => {
-    const newCart = cart.filter((cartItem) => cartItem.id !== product.id);
-    setCart(newCart);
-    toast(`${product.name} removed from cart`, toastOptions);
-  };
-
-  const componentRef = useRef();
-
-  const handleReactToPrint = useReactToPrint({
-    content: () => componentRef.current,
-  });
-
-  const handlePrint = () => {
-    handleReactToPrint();
-  };
-
-  useEffect(() => {
-    let newTotalAmount = 0;
-    cart.forEach((icart) => {
-      newTotalAmount = newTotalAmount + parseInt(icart.totalAmount);
-    });
-    setTotalAmount(newTotalAmount);
-  }, [cart]);
+  const {
+    addProductToCart,
+    totalAmount,
+    isLoading,
+    handlePrint,
+    removeProduct,
+    cart,
+    componentRef,
+  } = usePOS();
 
   return (
     <MainLayout>
